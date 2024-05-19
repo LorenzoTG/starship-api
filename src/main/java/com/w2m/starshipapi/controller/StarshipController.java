@@ -1,13 +1,16 @@
 package com.w2m.starshipapi.controller;
 
-import com.w2m.starshipapi.model.Starship;
-import com.w2m.starshipapi.repository.StarshipRepository;
-import com.w2m.starshipapi.service.StarshipService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.w2m.starshipapi.model.Starship;
+import com.w2m.starshipapi.repository.StarshipRepository;
+import com.w2m.starshipapi.service.StarshipService;
+import org.springframework.data.web.PageableDefault;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,26 +19,24 @@ import java.util.Optional;
 public class StarshipController {
 
     @Autowired
-    private StarshipRepository starshipRepo;
-
-    @Autowired
     private StarshipService starshipService;
 
     // Get all starships
     @GetMapping
-    public ResponseEntity<List<Starship>> getAllStarships(){
-        try{
-            List<Starship> starships = starshipService.getAllStarships();
+    public ResponseEntity<Page<Starship>> getAllStarships(@PageableDefault(size = 10) Pageable pageable) {
+        try {
+            Page<Starship> starships = starshipService.getAllStarships(pageable);
 
-            if (starships.isEmpty()){
+            if (starships.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
             return new ResponseEntity<>(starships, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // Get all starships that contain certain string value
     @GetMapping("/search")

@@ -1,10 +1,12 @@
 package com.w2m.starshipapi.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.w2m.starshipapi.model.Starship;
 import com.w2m.starshipapi.repository.StarshipRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +19,8 @@ public class StarshipService {
         return starshipRepository.findByNameContainingIgnoreCase(name);
     }
 
-    public List<Starship> getAllStarships() {
-        return starshipRepository.findAll();
+    public Page<Starship> getAllStarships(Pageable pageable) {
+        return starshipRepository.findAll(pageable);
     }
 
     public Optional<Starship> getStarshipById(Long id) {
