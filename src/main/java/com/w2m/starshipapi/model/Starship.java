@@ -1,7 +1,6 @@
 package com.w2m.starshipapi.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -13,7 +12,11 @@ import lombok.*;
 @ToString
 public class Starship {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String title;
-    private String author;
+
+    private String name;
+
+    private String pilot;
 }
