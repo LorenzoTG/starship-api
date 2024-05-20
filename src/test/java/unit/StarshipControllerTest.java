@@ -1,6 +1,9 @@
 package unit;
 
 import com.w2m.starshipapi.StarshipApiApplication;
+import com.w2m.starshipapi.exceptions.InternalServerErrorException;
+import com.w2m.starshipapi.exceptions.NoContentException;
+import com.w2m.starshipapi.exceptions.NotFoundException;
 import com.w2m.starshipapi.model.Starship;
 import com.w2m.starshipapi.service.StarshipService;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,11 +60,12 @@ public class StarshipControllerTest {
 
     @Test
     public void testGetAllStarships_NoContent() throws Exception {
-        when(starshipService.getAllStarships(any())).thenReturn(Page.empty());
+        when(starshipService.getAllStarships(any())).thenThrow(new NoContentException("No starships available."));
 
         mockMvc.perform(get("/api/starships")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andExpect(content().string("No starships available."));
 
         verify(starshipService, times(1)).getAllStarships(any());
     }
@@ -97,6 +100,18 @@ public class StarshipControllerTest {
     }
 
     @Test
+    public void testGetStarshipById_NotFound() throws Exception {
+        when(starshipService.getStarshipById(1L)).thenThrow(new NotFoundException("Starship not found with id: 1"));
+
+        mockMvc.perform(get("/api/starships/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Starship not found with id: 1"));
+
+        verify(starshipService, times(1)).getStarshipById(1L);
+    }
+
+    @Test
     public void testAddStarship() throws Exception {
         Starship starship = new Starship(1L, "X-Wing", "Luke Skywalker");
 
@@ -107,6 +122,19 @@ public class StarshipControllerTest {
                         .content("{\"name\":\"X-Wing\",\"pilot\":\"Luke Skywalker\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("X-Wing"));
+
+        verify(starshipService, times(1)).addStarship(any(Starship.class));
+    }
+
+    @Test
+    public void testAddStarship_InternalServerError() throws Exception {
+        when(starshipService.addStarship(any(Starship.class))).thenThrow(new InternalServerErrorException("Could not save starship."));
+
+        mockMvc.perform(post("/api/starships")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"X-Wing\",\"pilot\":\"Luke Skywalker\"}"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Could not save starship."));
 
         verify(starshipService, times(1)).addStarship(any(Starship.class));
     }
