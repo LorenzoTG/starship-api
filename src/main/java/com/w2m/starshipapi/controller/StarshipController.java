@@ -2,7 +2,9 @@ package com.w2m.starshipapi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +23,23 @@ public class StarshipController {
     @Autowired
     private StarshipService starshipService;
 
-    // Get all starships
+    // Get all starships with pagination and sort methods
     @GetMapping
-    public ResponseEntity<Page<Starship>> getAllStarships(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<Page<Starship>> getAllStarships(
+            @PageableDefault(size = 10) Pageable pageable,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder
+    ) {
         try {
-            Page<Starship> starships = starshipService.getAllStarships(pageable);
+            // Default sorting direction is ascending
+            Sort.Direction direction = (sortOrder != null && sortOrder.equalsIgnoreCase("desc"))
+                    ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+            // Create a pageable with sorting
+            Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                    Sort.by(direction, (sortBy != null) ? sortBy : "id"));
+
+            Page<Starship> starships = starshipService.getAllStarships(sortedPageable);
 
             if (starships.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
