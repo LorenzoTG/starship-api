@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.w2m.starshipapi.model.Starship;
-import com.w2m.starshipapi.repository.StarshipRepository;
 import com.w2m.starshipapi.service.StarshipService;
 import org.springframework.data.web.PageableDefault;
 import java.util.List;
