@@ -1,6 +1,7 @@
 package com.w2m.starshipapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.w2m.starshipapi.model.Starship;
@@ -17,6 +18,7 @@ public class StarshipService {
     @Autowired
     private StarshipRepository starshipRepository;
 
+    @Cacheable(value = "starshipsByName", key = "#name")
     public List<Starship> getStarshipsByName(String name) {
         List<Starship> starships = starshipRepository.findByNameContainingIgnoreCase(name);
         if (starships.isEmpty()) {
@@ -25,6 +27,7 @@ public class StarshipService {
         return starships;
     }
 
+    @Cacheable(value = "allStarships", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort}")
     public Page<Starship> getAllStarships(Pageable pageable) {
         Page<Starship> starships = starshipRepository.findAll(pageable);
         if (starships.isEmpty()) {
@@ -33,6 +36,7 @@ public class StarshipService {
         return starships;
     }
 
+    @Cacheable(value = "starshipById", key = "#id")
     public Optional<Starship> getStarshipById(Long id) {
         return Optional.ofNullable(starshipRepository.findById(id).orElseThrow(() -> new NotFoundException("Starship not found with id: " + id)));
     }
