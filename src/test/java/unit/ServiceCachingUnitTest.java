@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = StarshipApiApplication.class)
-public class ServiceCachingTest {
+public class ServiceCachingUnitTest {
 
     @Autowired
     private StarshipService starshipService;

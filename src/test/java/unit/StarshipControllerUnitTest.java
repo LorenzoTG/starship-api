@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = StarshipApiApplication.class)
 @AutoConfigureMockMvc
-public class StarshipControllerTest {
+public class StarshipControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
