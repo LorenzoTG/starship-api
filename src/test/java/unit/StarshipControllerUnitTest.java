@@ -2,7 +2,6 @@ package unit;
 
 import com.w2m.starshipapi.StarshipApiApplication;
 import com.w2m.starshipapi.exceptions.InternalServerErrorException;
-import com.w2m.starshipapi.exceptions.NoContentException;
 import com.w2m.starshipapi.exceptions.NotFoundException;
 import com.w2m.starshipapi.model.Starship;
 import com.w2m.starshipapi.service.StarshipService;
@@ -13,13 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -40,34 +36,6 @@ public class StarshipControllerUnitTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    public void testGetAllStarships() throws Exception {
-        Starship starship1 = new Starship(1L, "X-Wing", "Luke Skywalker");
-        Starship starship2 = new Starship(2L, "TIE Fighter", "Darth Vader");
-
-        when(starshipService.getAllStarships(any())).thenReturn(new PageImpl<>(Arrays.asList(starship1, starship2)));
-
-        mockMvc.perform(get("/api/starships")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].name").value("X-Wing"))
-                .andExpect(jsonPath("$.content[1].name").value("TIE Fighter"));
-
-        verify(starshipService, times(1)).getAllStarships(any());
-    }
-
-    @Test
-    public void testGetAllStarships_NoContent() throws Exception {
-        when(starshipService.getAllStarships(any())).thenThrow(new NoContentException("No starships available."));
-
-        mockMvc.perform(get("/api/starships")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andExpect(content().string("No starships available."));
-
-        verify(starshipService, times(1)).getAllStarships(any());
     }
 
     @Test

@@ -1,20 +1,25 @@
 package com.w2m.starshipapi.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.w2m.starshipapi.exceptions.NoContentException;
+import com.w2m.starshipapi.exceptions.NotFoundException;
 import com.w2m.starshipapi.model.Starship;
 import com.w2m.starshipapi.repository.StarshipRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
-import com.w2m.starshipapi.exceptions.NotFoundException;
-import com.w2m.starshipapi.exceptions.InternalServerErrorException;
-import com.w2m.starshipapi.exceptions.NoContentException;
 
 @Service
 public class StarshipService {
+
     @Autowired
     private StarshipRepository starshipRepository;
 
@@ -30,47 +35,50 @@ public class StarshipService {
     @Cacheable(value = "allStarships", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort}")
     public Page<Starship> getAllStarships(Pageable pageable) {
         Page<Starship> starships = starshipRepository.findAll(pageable);
-        if (starships.isEmpty()) {
-            throw new NoContentException("No starships available.");
+
+        // Check if starships is null
+        if (starships == null || starships.isEmpty()) {
+            // Return an empty page if starships is null or empty
+            return Page.empty();
         }
+
         return starships;
     }
+
 
     @Cacheable(value = "starshipById", key = "#id")
     public Optional<Starship> getStarshipById(Long id) {
         return Optional.ofNullable(starshipRepository.findById(id).orElseThrow(() -> new NotFoundException("Starship not found with id: " + id)));
     }
 
+    @CacheEvict(value = {"starshipsByName", "allStarships"}, allEntries = true)
+    @CachePut(value = "starshipById", key = "#result.id")
     public Starship addStarship(Starship starship) {
-        try {
-            return starshipRepository.save(starship);
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Could not save starship: " + e.getMessage());
-        }
+        return starshipRepository.save(starship);
     }
 
+    @CacheEvict(value = {"starshipsByName", "allStarships"}, allEntries = true)
+    @CachePut(value = "starshipById", key = "#id")
     public Optional<Starship> updateStarship(Long id, Starship starshipDetails) {
-        Optional<Starship> existingStarship = starshipRepository.findById(id);
-
-        if (existingStarship.isPresent()) {
-            Starship starship = existingStarship.get();
+        return starshipRepository.findById(id).map(starship -> {
             starship.setName(starshipDetails.getName());
             starship.setPilot(starshipDetails.getPilot());
-            try {
-                return Optional.of(starshipRepository.save(starship));
-            } catch (Exception e) {
-                throw new InternalServerErrorException("Could not update starship: " + e.getMessage());
-            }
-        } else {
-            throw new NotFoundException("Starship not found with id: " + id);
-        }
+            return starshipRepository.save(starship);
+        });
     }
 
+    @CacheEvict(value = {"starshipsByName", "allStarships", "starshipById"}, allEntries = true)
     public void deleteStarship(Long id) {
-        try {
-            starshipRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Could not delete starship: " + e.getMessage());
-        }
+        starshipRepository.deleteById(id);
+    }
+
+    // New method for pagination and sorting logic
+    public Page<Starship> getAllStarships(int pageNumber, int pageSize, String sortBy, String sortOrder) {
+        Sort.Direction direction = (sortOrder != null && sortOrder.equalsIgnoreCase("desc"))
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(direction, (sortBy != null) ? sortBy : "id"));
+
+        return getAllStarships(pageable);
     }
 }
