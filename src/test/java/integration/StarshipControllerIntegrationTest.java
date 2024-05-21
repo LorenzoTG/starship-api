@@ -9,12 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = StarshipApiApplication.class)
 @AutoConfigureMockMvc
@@ -32,6 +35,7 @@ public class StarshipControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testGetAllStarships() throws Exception {
         Starship starship1 = new Starship(null, "X-Wing", "Luke Skywalker");
         Starship starship2 = new Starship(null, "TIE Fighter", "Darth Vader");
@@ -47,6 +51,7 @@ public class StarshipControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testAddStarship() throws Exception {
         String starshipJson = "{\"name\":\"X-Wing\",\"pilot\":\"Luke Skywalker\"}";
 

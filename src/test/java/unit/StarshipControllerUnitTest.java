@@ -13,9 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,6 +41,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testGetStarshipsByName() throws Exception {
         Starship starship = new Starship(1L, "X-Wing", "Luke Skywalker");
 
@@ -54,6 +57,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testGetStarshipById() throws Exception {
         Starship starship = new Starship(1L, "X-Wing", "Luke Skywalker");
 
@@ -68,6 +72,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testGetStarshipById_NotFound() throws Exception {
         when(starshipService.getStarshipById(1L)).thenThrow(new NotFoundException("Starship not found with id: 1"));
 
@@ -80,6 +85,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testAddStarship() throws Exception {
         Starship starship = new Starship(1L, "X-Wing", "Luke Skywalker");
 
@@ -95,6 +101,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testAddStarship_InternalServerError() throws Exception {
         when(starshipService.addStarship(any(Starship.class))).thenThrow(new InternalServerErrorException("Could not save starship."));
 
@@ -108,6 +115,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testUpdateStarship() throws Exception {
         Starship starship = new Starship(1L, "X-Wing", "Luke Skywalker");
 
@@ -123,6 +131,7 @@ public class StarshipControllerUnitTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testDeleteStarship() throws Exception {
         doNothing().when(starshipService).deleteStarship(1L);
 
