@@ -80,7 +80,7 @@ public class StarshipController {
         return ResponseEntity.ok(starship);
     }
 
-    @Operation(summary = "Post a new starship")
+    @Operation(summary = "Post new starship")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Starship created",
                     content = @Content(schema = @Schema(implementation = Starship.class))),
