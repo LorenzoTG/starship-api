@@ -36,9 +36,7 @@ public class StarshipService {
     public Page<Starship> getAllStarships(Pageable pageable) {
         Page<Starship> starships = starshipRepository.findAll(pageable);
 
-        // Check if starships is null
         if (starships == null || starships.isEmpty()) {
-            // Return an empty page if starships is null or empty
             return Page.empty();
         }
 
