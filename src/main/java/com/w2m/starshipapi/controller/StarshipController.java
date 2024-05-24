@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import com.w2m.starshipapi.model.Starship;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -88,7 +89,7 @@ public class StarshipController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
-    public ResponseEntity<Starship> addStarship(@RequestBody Starship starship) {
+    public ResponseEntity<Starship> addStarship(@Valid @RequestBody Starship starship) {
         Starship savedStarship = starshipService.addStarship(starship);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedStarship);
     }
@@ -101,7 +102,7 @@ public class StarshipController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Starship> updateStarship(@PathVariable Long id, @RequestBody Starship starshipDetails) {
+    public ResponseEntity<Starship> updateStarship(@PathVariable Long id, @Valid @RequestBody Starship starshipDetails) {
         Starship updatedStarship = starshipService.updateStarship(id, starshipDetails).orElseThrow();
         return ResponseEntity.ok(updatedStarship);
     }
