@@ -144,7 +144,7 @@ docker build --no-cache -t starship-api .
 docker run -p 9090:9090 starship-api
 ```
 
-**Note:** Have in mind that the API runs in the port 9090.
+**Note:** Have in mind that the API runs in the port 9090. To lift up the rabbitMQ instance, run "docker compose up", The credentials are "guest", "guest". You can fin the UI at "http://localhost:15672/"
 
 
 
