@@ -1,9 +1,17 @@
 version: '3.8'
+name: starship-compose
 services:
   starship-api:
+    container_name: starship-api
     image: starship-api
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "9090:9090"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
